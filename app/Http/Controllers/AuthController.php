@@ -12,6 +12,21 @@ use Exception;
 
 class AuthController extends Controller
 {
+    public function index()
+    {
+        try {
+            $users = User::select('id', 'name', 'email')->get(); 
+
+            return response()->json([
+                'users' => $users
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener los usuarios: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function register(Request $request)
     {
         try {
@@ -36,7 +51,6 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token
             ], 201);
-
         } catch (QueryException $e) {
             // Manejo de errores específicos de base de datos
             if ($e->getCode() == 23000) {
@@ -80,7 +94,6 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token
             ]);
-
         } catch (Exception $e) {
             // Errores generales durante el login
             return response()->json([
@@ -105,7 +118,6 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Sesión cerrada correctamente.'
             ]);
-
         } catch (Exception $e) {
             // Errores generales durante el cierre de sesión
             return response()->json([

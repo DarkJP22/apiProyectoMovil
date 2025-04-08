@@ -20,4 +20,9 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
+    
+    public function assignedUsers()
+    {
+        return $this->hasManyThrough(User::class, Task::class, 'project_id', 'id', 'id', 'user_id')->distinct();
+    }
 }

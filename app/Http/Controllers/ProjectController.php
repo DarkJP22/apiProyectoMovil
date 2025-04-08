@@ -65,8 +65,14 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         try {
-            // Verificamos si el usuario es el creador del proyecto (administrador) o un usuario asignado
-            if ($project->user_id !== Auth::id() && !$project->users->contains(Auth::id())) {
+            // Cargamos las relaciones necesarias
+            $project->load(['tasks', 'assignedUsers']);
+
+            // Validamos si el usuario puede ver el proyecto
+            $isCreator = $project->user_id === Auth::id();
+            $isAssigned = $project->assignedUsers->contains('id', Auth::id());
+
+            if (!$isCreator && !$isAssigned) {
                 return response()->json([
                     'message' => 'No tienes permisos para ver este proyecto.'
                 ], 403);

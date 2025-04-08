@@ -123,6 +123,35 @@ class TaskController extends Controller
         }
     }
 
+    public function updateStatus(Request $request, Task $task)
+    {
+        try {
+            // Verificamos si el usuario es el asignado a la tarea
+            if ($task->user_id !== Auth::id()) {
+                return response()->json([
+                    'message' => 'No tienes permisos para modificar el estado de esta tarea.'
+                ], 403);
+            }
+    
+            // Validamos el nuevo estado de la tarea
+            $validated = $request->validate([
+                'status' => 'required|in:pending,in_progress,completed',
+            ]);
+    
+            // Actualizamos el estado de la tarea
+            $task->status = $validated['status'];
+            $task->save();
+    
+            return response()->json([
+                'message' => 'Estado de la tarea actualizado exitosamente.',
+                'task' => $task
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar el estado de la tarea: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function search(Request $request)
     {
